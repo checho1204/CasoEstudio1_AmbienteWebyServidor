@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Estudiantes</title>
+
+<style>
+    body{
+        font-family: Arial, sans-serif;
+        margin: 30px;
+        background-color: #f4f4f4;
+    }
+
+    header{
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    section{
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    form{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    input{
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button{
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover{
+        background-color: #0056b3;
+    }
+
+    table{
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+    table, th, td{
+        border: 1px solid black;
+    }
+
+    th, td{
+        padding: 10px;
+        text-align: center;
+    }
+
+    tr:hover{
+        background-color: #e9e9e9;
+    }
+
+    .verde{
+        background-color: #b6f7b6;
+        color: green;
+        font-weight: bold;
+    }
+
+    .rojo{
+        background-color: #ffb3b3;
+        color: red;
+        font-weight: bold;
+    }
+
+    #mensaje{
+        color: red;
+        font-weight: bold;
+    }
+
+    #resumen{
+        margin-top: 20px;
+        font-size: 18px;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Registro de Estudiantes</h1>
+</header>
+
+<main>
+
+<section>
+    <h2>Agregar Estudiante</h2>
+
+    <form id="formulario">
+        <input type="text" id="nombre" placeholder="Nombre">
+        <input type="text" id="apellidos" placeholder="Apellidos">
+        <input type="number" id="nota" placeholder="Nota" min="0" max="100">
+
+        <button type="submit">Agregar</button>
+    </form>
+
+    <p id="mensaje"></p>
+</section>
+
+<section>
+    <h2>Lista de Estudiantes</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Nota</th>
+            </tr>
+        </thead>
+
+        <tbody id="tablaEstudiantes">
+
+        </tbody>
+    </table>
+
+    <div id="resumen">
+        <p id="mejor"></p>
+        <p id="promedio"></p>
+        <p id="menor"></p>
+    </div>
+
+</section>
+
+</main>
+
+<script>
+
+let estudiantes = [
+    {nombre:"Javier", apellidos:"Quiros Loria", nota:90},
+    {nombre:"Mateo", apellidos:"Sibaja Meneses", nota:60},
+    {nombre:"Lucas", apellidos:"Rojas Rojas", nota:78}
+];
+
+const tabla = document.getElementById("tablaEstudiantes");
+const formulario = document.getElementById("formulario");
+const mensaje = document.getElementById("mensaje");
+
+function mostrarEstudiantes(){
+
+    tabla.innerHTML = "";
+
+    estudiantes.forEach(estudiante => {
+
+        let fila = document.createElement("tr");
+
+        let clase = "";
+
+        if(estudiante.nota >= 80){
+            clase = "verde";
+        }else if(estudiante.nota < 65){
+            clase = "rojo";
+        }
+
+        fila.innerHTML = `
+            <td>${estudiante.nombre}</td>
+            <td>${estudiante.apellidos}</td>
+            <td class="${clase}">${estudiante.nota}</td>
+        `;
+
+        tabla.appendChild(fila);
+    });
+
+    actualizarResumen();
+}
+
+function actualizarResumen(){
+
+    let notas = estudiantes.map(e => e.nota);
+
+    let mayor = estudiantes.reduce((a,b)=>
+        a.nota > b.nota ? a : b
+    );
+
+    let menor = Math.min(...notas);
+
+    let promedio =
+        notas.reduce((a,b)=>a+b,0) / notas.length;
+
+    document.getElementById("mejor").innerHTML =
+        `<strong>Mayor nota:</strong> ${mayor.nombre} ${mayor.apellidos} (${mayor.nota})`;
+
+    document.getElementById("promedio").innerHTML =
+        `<strong>Promedio:</strong> ${promedio.toFixed(2)}`;
+
+    document.getElementById("menor").innerHTML =
+        `<strong>Nota más baja:</strong> ${menor}`;
+}
+
+formulario.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    let nombre = document.getElementById("nombre").value.trim();
+    let apellidos = document.getElementById("apellidos").value.trim();
+    let nota = document.getElementById("nota").value;
+
+    if(nombre === "" || apellidos === "" || nota === ""){
+        mensaje.textContent =
+            "Todos los campos son obligatorios.";
+        return;
+    }
+
+    nota = Number(nota);
+
+    if(nota < 0 || nota > 100){
+        mensaje.textContent =
+            "La nota debe estar entre 0 y 100.";
+        return;
+    }
+
+    mensaje.textContent = "";
+
+    estudiantes.push({
+        nombre,
+        apellidos,
+        nota
+    });
+
+    mostrarEstudiantes();
+
+    formulario.reset();
+});
+
+mostrarEstudiantes();
+
+</script>
+
+</body>
+</html>
